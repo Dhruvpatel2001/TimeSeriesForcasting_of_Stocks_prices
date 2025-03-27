@@ -26,13 +26,13 @@ import { Search } from 'lucide-react';
 const sentimentData = {
   positive: 45,
   neutral: 30,
-  negative: 25,
+  negative: 25
 };
 
 const pieData = [
   { name: 'Positive', value: 45 },
   { name: 'Neutral', value: 30 },
-  { name: 'Negative', value: 25 },
+  { name: 'Negative', value: 25 }
 ];
 
 const COLORS = ['hsl(var(--chart-1))', 'hsl(var(--chart-2))', 'hsl(var(--chart-3))'];
@@ -42,7 +42,7 @@ const trendData = [
   { date: '2024-02', sentiment: 0.8 },
   { date: '2024-03', sentiment: 0.4 },
   { date: '2024-04', sentiment: 0.7 },
-  { date: '2024-05', sentiment: 0.5 },
+  { date: '2024-05', sentiment: 0.5 }
 ];
 
 const newsData = [
@@ -96,8 +96,9 @@ export default function SentimentPage() {
             className="max-w-xs"
           />
           <Button>
-            <Search className="mr-2 h-4 w-4" />
+            <Search className="mr-2 h-4 w-4" >
             Analyze
+            </Search>
           </Button>
         </div>
 

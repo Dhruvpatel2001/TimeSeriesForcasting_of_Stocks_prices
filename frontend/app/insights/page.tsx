@@ -32,19 +32,19 @@ const modelComparisonData = [
     name: 'RMSE',
     ARIMA: 0.45,
     LSTM: 0.38,
-    Hybrid: 0.32,
+    Hybrid: 0.32
   },
   {
     name: 'MAE',
     ARIMA: 0.38,
     LSTM: 0.32,
-    Hybrid: 0.28,
+    Hybrid: 0.28
   },
   {
     name: 'R² Score',
     ARIMA: 0.82,
     LSTM: 0.88,
-    Hybrid: 0.92,
+    Hybrid: 0.92
   },
 ];
 
@@ -85,7 +85,7 @@ export default function InsightsPage() {
               <h3 className="font-semibold">MAE</h3>
               <TooltipProvider>
                 <UITooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <Info className="h-4 w-4 text-muted-foreground" />
                   </TooltipTrigger>
                   <TooltipContent>
@@ -104,7 +104,7 @@ export default function InsightsPage() {
               <h3 className="font-semibold">R² Score</h3>
               <TooltipProvider>
                 <UITooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <Info className="h-4 w-4 text-muted-foreground" />
                   </TooltipTrigger>
                   <TooltipContent>
