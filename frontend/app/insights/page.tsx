@@ -129,9 +129,9 @@ export default function InsightsPage() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="ARIMA" fill="hsl(var(--chart-1))" />
-                <Bar dataKey="LSTM" fill="hsl(var(--chart-2))" />
-                <Bar dataKey="Hybrid" fill="hsl(var(--chart-3))" />
+                <Bar dataKey="ARIMA" fill="#8884d8" />
+                <Bar dataKey="LSTM" fill="#82ca9d" />
+                <Bar dataKey="Hybrid" fill="#ffc658" />
               </BarChart>
             </ResponsiveContainer>
           </div>
