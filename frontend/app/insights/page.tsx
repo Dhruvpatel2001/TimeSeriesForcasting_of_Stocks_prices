@@ -66,7 +66,7 @@ export default function InsightsPage() {
               <h3 className="font-semibold">RMSE</h3>
               <TooltipProvider>
                 <UITooltip>
-                  <TooltipTrigger>
+                  <TooltipTrigger asChild>
                     <Info className="h-4 w-4 text-muted-foreground" />
                   </TooltipTrigger>
                   <TooltipContent>
