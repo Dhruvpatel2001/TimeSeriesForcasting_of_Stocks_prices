@@ -1,13 +1,16 @@
 'use client';
 
 import { ModeToggle } from '@/components/mode-toggle';
-import { LineChart, Search, Home, Brain, Newspaper } from 'lucide-react';
+import { LineChart, Search, Home, Brain, Newspaper, LogOut, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { useRouter } from 'next/navigation';
+import { Button } from './ui/button';
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
+  { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { name: 'Stock Chart', href: '/chart', icon: LineChart },
   { name: 'Model Insights', href: '/insights', icon: Brain },
   { name: 'News & Sentiment', href: '/sentiment', icon: Newspaper },
@@ -15,6 +18,15 @@ const navigation = [
 
 export function Navbar() {
   const pathname = usePathname();
+  const router = useRouter();
+
+  const handleSignOut = () => {
+    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('userRole');
+    document.cookie = 'isAuthenticated=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    document.cookie = 'userRole=; path=/; expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+    router.push('/auth');
+  };
 
   return (
     <nav className="fixed top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -47,6 +59,14 @@ export function Navbar() {
         </div>
         <div className="ml-auto flex items-center space-x-4">
           <ModeToggle />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleSignOut}
+            className="text-muted-foreground hover:text-primary"
+          >
+            <LogOut className="h-5 w-5" />
+          </Button>
         </div>
       </div>
     </nav>

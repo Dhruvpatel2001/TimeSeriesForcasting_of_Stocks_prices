@@ -2,16 +2,7 @@
 
 import { Navbar } from '@/components/navbar';
 import { Card } from '@/components/ui/card';
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-} from 'recharts';
+import { LineChart } from '@/components/charts/line-chart';
 import { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -56,27 +47,14 @@ export default function ChartPage() {
 
         <Card className="p-6">
           <div className="h-[400px] w-full">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="date" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="actual"
-                  stroke="hsl(var(--chart-1))"
-                  name="Actual Price"
-                />
-                <Line
-                  type="monotone"
-                  dataKey="predicted"
-                  stroke="hsl(var(--chart-2))"
-                  name="Predicted Price"
-                />
-              </LineChart>
-            </ResponsiveContainer>
+            <LineChart 
+              data={data}
+              xAxisDataKey="date"
+              lines={[
+                { dataKey: 'actual', name: 'Actual Price', color: 'hsl(var(--chart-1))' },
+                { dataKey: 'predicted', name: 'Predicted Price', color: 'hsl(var(--chart-2))' }
+              ]}
+            />
           </div>
         </Card>
 

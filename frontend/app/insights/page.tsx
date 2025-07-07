@@ -32,19 +32,19 @@ const modelComparisonData = [
     name: 'RMSE',
     ARIMA: 0.45,
     LSTM: 0.38,
-    Hybrid: 0.32
+    Hybrid: 0.32,
   },
   {
     name: 'MAE',
     ARIMA: 0.38,
     LSTM: 0.32,
-    Hybrid: 0.28
+    Hybrid: 0.28,
   },
   {
     name: 'R² Score',
     ARIMA: 0.82,
     LSTM: 0.88,
-    Hybrid: 0.92
+    Hybrid: 0.92,
   },
 ];
 
@@ -66,7 +66,7 @@ export default function InsightsPage() {
               <h3 className="font-semibold">RMSE</h3>
               <TooltipProvider>
                 <UITooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger>
                     <Info className="h-4 w-4 text-muted-foreground" />
                   </TooltipTrigger>
                   <TooltipContent>
@@ -85,7 +85,7 @@ export default function InsightsPage() {
               <h3 className="font-semibold">MAE</h3>
               <TooltipProvider>
                 <UITooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger>
                     <Info className="h-4 w-4 text-muted-foreground" />
                   </TooltipTrigger>
                   <TooltipContent>
@@ -104,7 +104,7 @@ export default function InsightsPage() {
               <h3 className="font-semibold">R² Score</h3>
               <TooltipProvider>
                 <UITooltip>
-                  <TooltipTrigger asChild>
+                  <TooltipTrigger>
                     <Info className="h-4 w-4 text-muted-foreground" />
                   </TooltipTrigger>
                   <TooltipContent>
@@ -129,9 +129,9 @@ export default function InsightsPage() {
                 <YAxis />
                 <Tooltip />
                 <Legend />
-                <Bar dataKey="ARIMA" fill="#8884d8" />
-                <Bar dataKey="LSTM" fill="#82ca9d" />
-                <Bar dataKey="Hybrid" fill="#ffc658" />
+                <Bar dataKey="ARIMA" fill="hsl(var(--chart-1))" />
+                <Bar dataKey="LSTM" fill="hsl(var(--chart-2))" />
+                <Bar dataKey="Hybrid" fill="hsl(var(--chart-3))" />
               </BarChart>
             </ResponsiveContainer>
           </div>
