@@ -1,3 +1,4 @@
+import os
 import pickle
 import pandas as pd
 import yfinance as yf
@@ -14,10 +15,13 @@ def train_arima(symbol):
     model = ARIMA(stock_data, order=(5,1,0))
     arima_model = model.fit()
     
-    # Save model
-    with open("models/arima_model.pkl", "wb") as f:
+    # Ensure the models directory exists
+    model_dir = os.path.join(os.path.dirname(__file__), "models")
+    os.makedirs(model_dir, exist_ok=True)
+    model_path = os.path.join(model_dir, "arima_model.pkl")
+    with open(model_path, "wb") as f:
         pickle.dump(arima_model, f)
-    print("ARIMA model saved successfully!")
+    print(f"ARIMA model saved successfully at {model_path}!")
 
 if __name__ == "__main__":
     train_arima("AAPL")  # Train model for Apple stock

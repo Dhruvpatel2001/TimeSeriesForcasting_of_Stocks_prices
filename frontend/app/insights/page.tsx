@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { Navbar } from '@/components/navbar';
 import { Card } from '@/components/ui/card';
 import {
@@ -48,7 +49,31 @@ const modelComparisonData = [
   },
 ];
 
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
+
 export default function InsightsPage() {
+  const [metrics, setMetrics] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      setLoading(true);
+      setError(null);
+      try {
+        const res = await fetch(`${BACKEND_URL}/stock/metrics/`);
+        if (!res.ok) throw new Error('Failed to fetch metrics');
+        const data = await res.json();
+        setMetrics(data);
+      } catch (err: any) {
+        setError(err.message || 'Unknown error');
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchMetrics();
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -60,6 +85,10 @@ export default function InsightsPage() {
           </p>
         </div>
 
+        {loading && <div>Loading metrics...</div>}
+        {error && <div className="text-red-500 mb-4">{error}</div>}
+
+        {metrics && (
         <div className="grid gap-6 md:grid-cols-3">
           <Card className="p-6">
             <div className="flex items-center justify-between">
@@ -75,11 +104,10 @@ export default function InsightsPage() {
                 </UITooltip>
               </TooltipProvider>
             </div>
-            <p className="mt-2 text-2xl font-bold">0.32</p>
-            <Progress value={68} className="mt-2" />
-            <p className="mt-1 text-sm text-muted-foreground">32% improvement from baseline</p>
+            <p className="mt-2 text-2xl font-bold">{metrics.rmse}</p>
+            <Progress value={Math.round((1-metrics.rmse)*100)} className="mt-2" />
+            <p className="mt-1 text-sm text-muted-foreground">{Math.round((1-metrics.rmse)*100)}% improvement from baseline</p>
           </Card>
-
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">MAE</h3>
@@ -94,11 +122,10 @@ export default function InsightsPage() {
                 </UITooltip>
               </TooltipProvider>
             </div>
-            <p className="mt-2 text-2xl font-bold">0.28</p>
-            <Progress value={72} className="mt-2" />
-            <p className="mt-1 text-sm text-muted-foreground">28% improvement from baseline</p>
+            <p className="mt-2 text-2xl font-bold">{metrics.mae}</p>
+            <Progress value={Math.round((1-metrics.mae)*100)} className="mt-2" />
+            <p className="mt-1 text-sm text-muted-foreground">{Math.round((1-metrics.mae)*100)}% improvement from baseline</p>
           </Card>
-
           <Card className="p-6">
             <div className="flex items-center justify-between">
               <h3 className="font-semibold">R² Score</h3>
@@ -113,11 +140,12 @@ export default function InsightsPage() {
                 </UITooltip>
               </TooltipProvider>
             </div>
-            <p className="mt-2 text-2xl font-bold">0.92</p>
-            <Progress value={92} className="mt-2" />
-            <p className="mt-1 text-sm text-muted-foreground">92% of variance explained</p>
+            <p className="mt-2 text-2xl font-bold">{metrics.r2}</p>
+            <Progress value={Math.round(metrics.r2*100)} className="mt-2" />
+            <p className="mt-1 text-sm text-muted-foreground">{Math.round(metrics.r2*100)}% of variance explained</p>
           </Card>
         </div>
+        )}
 
         <Card className="mt-8 p-6">
           <h2 className="mb-4 text-xl font-semibold">Model Performance Comparison</h2>

@@ -10,6 +10,10 @@ import {
   Legend,
   ResponsiveContainer,
 } from 'recharts';
+import type { ScaleType} from 'recharts/types/util/types';
+
+// Dynamically extract exact types from components to prevent any mismatch
+type CurveType = React.ComponentProps<typeof Line>['type'];
 
 interface LineChartProps {
   data: any[];
@@ -21,10 +25,24 @@ interface LineChartProps {
   xAxisDataKey: string;
 }
 
-// Custom components with default parameters instead of defaultProps
+interface CustomXAxisProps {
+  dataKey: string;
+  scale?: ScaleType;
+  padding?: { left: number; right: number };
+  allowDecimals?: boolean;
+  allowDataOverflow?: boolean;
+  allowDuplicatedCategory?: boolean;
+  hide?: boolean;
+  mirror?: boolean;
+  orientation?: "top" | "bottom";
+  reversed?: boolean;
+  tickCount?: number;
+  [key: string]: any; // allow passthrough
+}
+
 const CustomXAxis = ({
   dataKey,
-  scale = "point",
+  scale = "point" as ScaleType,
   padding = { left: 10, right: 10 },
   allowDecimals = true,
   allowDataOverflow = false,
@@ -35,7 +53,7 @@ const CustomXAxis = ({
   reversed = false,
   tickCount = 5,
   ...props
-}) => (
+}: CustomXAxisProps) => (
   <XAxis
     dataKey={dataKey}
     scale={scale}
@@ -52,6 +70,19 @@ const CustomXAxis = ({
   />
 );
 
+interface CustomYAxisProps {
+  width?: number;
+  padding?: { top: number; bottom: number };
+  allowDecimals?: boolean;
+  allowDataOverflow?: boolean;
+  hide?: boolean;
+  mirror?: boolean;
+  orientation?: "left" | "right";
+  reversed?: boolean;
+  tickCount?: number;
+  [key: string]: any;
+}
+
 const CustomYAxis = ({
   width = 60,
   padding = { top: 20, bottom: 20 },
@@ -63,7 +94,7 @@ const CustomYAxis = ({
   reversed = false,
   tickCount = 5,
   ...props
-}) => (
+}: CustomYAxisProps) => (
   <YAxis
     width={width}
     padding={padding}
@@ -78,6 +109,21 @@ const CustomYAxis = ({
   />
 );
 
+interface CustomLineProps {
+  dataKey: string;
+  name?: string;
+  stroke: string;
+  type?: "monotone" | "linear" | "step" | "stepBefore" | "stepAfter" | "basis" | "basisOpen" | "basisClosed" | "bundle" | "cardinal" | "cardinalOpen" | "cardinalClosed" | "catmullRom" | "catmullRomOpen" | "catmullRomClosed" | "natural";
+  activeDot?: object;
+  connectNulls?: boolean;
+  dot?: boolean;
+  isAnimationActive?: boolean;
+  animationBegin?: number;
+  animationDuration?: number;
+  animationEasing?: "ease" | "ease-in" | "ease-out" | "ease-in-out" | "linear";
+  [key: string]: any;
+}
+
 const CustomLine = ({
   dataKey,
   name,
@@ -91,12 +137,12 @@ const CustomLine = ({
   animationDuration = 1500,
   animationEasing = "ease",
   ...props
-}) => (
+}: CustomLineProps) => (
   <Line
     dataKey={dataKey}
     name={name}
     stroke={stroke}
-    type={type}
+    type={type as CurveType}
     activeDot={activeDot}
     connectNulls={connectNulls}
     dot={dot}
@@ -109,23 +155,36 @@ const CustomLine = ({
 );
 
 export function LineChart({ data, lines, xAxisDataKey }: LineChartProps) {
+  console.log('LineChart render:', { data, lines, xAxisDataKey });
+  console.log('Data length:', data?.length);
+  console.log('Data sample:', data?.slice(0, 2));
+  
+  if (!data || data.length === 0) {
+    console.log('LineChart: No data provided');
+    return <div>No chart data available</div>;
+  }
+  
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <RechartsLineChart data={data}>
-        <CartesianGrid strokeDasharray="3 3" />
-        <CustomXAxis dataKey={xAxisDataKey} />
-        <CustomYAxis />
-        <Tooltip />
-        <Legend />
-        {lines.map((line) => (
-          <CustomLine
-            key={line.dataKey}
-            dataKey={line.dataKey}
-            name={line.name}
-            stroke={line.color}
-          />
-        ))}
-      </RechartsLineChart>
-    </ResponsiveContainer>
+    <div style={{ width: '100%', height: '100%', border: '1px solid blue' }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <RechartsLineChart data={data}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <CustomXAxis dataKey={xAxisDataKey} />
+          <CustomYAxis />
+          <Tooltip />
+          <Legend />
+          {lines.map((line) => (
+            <CustomLine
+              key={line.dataKey}
+              dataKey={line.dataKey}
+              name={line.name}
+              stroke={line.color}
+            />
+          ))}
+        </RechartsLineChart>
+      </ResponsiveContainer>
+    </div>
   );
 }
+
+

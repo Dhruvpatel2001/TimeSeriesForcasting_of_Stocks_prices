@@ -35,6 +35,7 @@ import {
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { Search, Plus, Trash2, Ban } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock user data
 const mockUsers = [
@@ -63,9 +64,44 @@ const mockUsers = [
 
 export default function UserManagementPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState(mockUsers);
   const [isLoading, setIsLoading] = useState(true);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [newUser, setNewUser] = useState({ email: '', role: 'user' });
+  const [isCreating, setIsCreating] = useState(false);
+
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://127.0.0.1:8000';
+
+  const fetchUsers = async () => {
+    try {
+      const response = await fetch(`${BACKEND_URL}/db/users`, {
+        headers: {
+          'X-Admin-Token': 'dev-admin', // This should come from user's session
+        },
+      });
+
+      if (response.ok) {
+        const backendUsers = await response.json();
+        // Transform backend users to match our frontend format
+        const transformedUsers = backendUsers.map((user: any) => ({
+          id: user.id,
+          email: user.username,
+          role: user.role,
+          lastLogin: 'Never', // Backend doesn't have this yet
+          status: 'active',
+        }));
+        setUsers(transformedUsers);
+      } else {
+        console.error('Failed to fetch users from backend');
+        // Keep mock users as fallback
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      // Keep mock users as fallback
+    }
+  };
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated');
@@ -81,6 +117,8 @@ export default function UserManagementPage() {
       return;
     }
 
+    // Fetch users from backend
+    fetchUsers();
     setIsLoading(false);
   }, [router]);
 
@@ -89,6 +127,68 @@ export default function UserManagementPage() {
       user.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.role.toLowerCase().includes(searchQuery.toLowerCase())
   );
+
+  const handleCreateUser = async () => {
+    if (!newUser.email.trim()) {
+      toast({
+        title: "Error",
+        description: "Email is required",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsCreating(true);
+    try {
+      const response = await fetch(`${BACKEND_URL}/db/users`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Token': 'dev-admin', // This should come from user's session
+        },
+        body: JSON.stringify({
+          email: newUser.email,
+          role: newUser.role,
+        }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Add the new user to the local state
+        const newUserObj = {
+          id: result.id || Date.now(),
+          email: newUser.email,
+          role: newUser.role,
+          lastLogin: 'Never',
+          status: 'active',
+        };
+        
+        setUsers([...users, newUserObj]);
+        setNewUser({ email: '', role: 'user' });
+        setIsDialogOpen(false);
+        
+        // Refresh users list from backend
+        fetchUsers();
+        
+        toast({
+          title: "Success",
+          description: "User created successfully",
+        });
+      } else {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || 'Failed to create user');
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || 'Failed to create user',
+        variant: "destructive",
+      });
+    } finally {
+      setIsCreating(false);
+    }
+  };
 
   const handleDeleteUser = (userId: number) => {
     setUsers(users.filter((user) => user.id !== userId));
@@ -142,9 +242,9 @@ export default function UserManagementPage() {
                 <Search className="h-4 w-4" />
               </Button>
             </div>
-            <Dialog>
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
               <DialogTrigger asChild>
-                <Button>
+                <Button onClick={() => setIsDialogOpen(true)}>
                   <Plus className="mr-2 h-4 w-4" />
                   Add User
                 </Button>
@@ -160,14 +260,21 @@ export default function UserManagementPage() {
                 <div className="grid gap-4 py-4">
                   <div className="grid gap-2">
                     <label htmlFor="email">Email</label>
-                    <Input id="email" type="email" />
+                    <Input 
+                      id="email" 
+                      type="email" 
+                      value={newUser.email}
+                      onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
+                      placeholder="user@example.com"
+                    />
                   </div>
                   <div className="grid gap-2">
                     <label htmlFor="role">Role</label>
                     <select
                       id="role"
                       className="rounded-md border p-2"
-                      defaultValue="user"
+                      value={newUser.role}
+                      onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
                     >
                       <option value="user">User</option>
                       <option value="admin">Admin</option>
@@ -175,7 +282,13 @@ export default function UserManagementPage() {
                   </div>
                 </div>
                 <DialogFooter>
-                  <Button type="submit">Create User</Button>
+                  <Button 
+                    type="button" 
+                    onClick={handleCreateUser}
+                    disabled={isCreating}
+                  >
+                    {isCreating ? 'Creating...' : 'Create User'}
+                  </Button>
                 </DialogFooter>
               </DialogContent>
             </Dialog>
@@ -212,7 +325,7 @@ export default function UserManagementPage() {
                       className={`rounded-full px-2 py-1 text-xs font-medium ${
                         user.status === 'active'
                           ? 'bg-green-100 text-green-700 dark:bg-green-700/20 dark:text-green-400'
-                          : 'bg-red-100 text-red-700 dark:bg-red-700/20 dark:text-red-400'
+                          : 'bg-red-100 text-red-700 dark:bg-green-700/20 dark:text-red-400'
                       }`}
                     >
                       {user.status}

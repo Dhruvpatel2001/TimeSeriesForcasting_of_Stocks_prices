@@ -36,7 +36,11 @@ export default function UploadDatasetPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+
+  const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:8000';
 
   useEffect(() => {
     const isAuthenticated = localStorage.getItem('isAuthenticated');
@@ -120,17 +124,30 @@ export default function UploadDatasetPage() {
 
   const handleUpload = async () => {
     if (!file) return;
-
-    // Simulate upload progress
-    for (let i = 0; i <= 100; i += 10) {
-      setUploadProgress(i);
-      await new Promise((resolve) => setTimeout(resolve, 200));
+    setUploadProgress(0);
+    setError(null);
+    setLoading(true);
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch(`${BACKEND_URL}/stock/upload/`, {
+        method: 'POST',
+        body: formData,
+      });
+      if (!res.ok) throw new Error('Failed to upload and retrain');
+      for (let i = 0; i <= 100; i += 10) {
+        setUploadProgress(i);
+        await new Promise((resolve) => setTimeout(resolve, 100));
+      }
+      toast({
+        title: 'Upload Complete',
+        description: 'Dataset uploaded and retraining started.',
+      });
+    } catch (err: any) {
+      setError(err.message || 'Unknown error');
+    } finally {
+      setLoading(false);
     }
-
-    toast({
-      title: 'Upload Complete',
-      description: 'Dataset has been successfully uploaded.',
-    });
   };
 
   const handleRetrain = async () => {

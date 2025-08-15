@@ -5,3 +5,4 @@ numpy
 tensorflow
 textblob
 requests
+SQLAlchemy

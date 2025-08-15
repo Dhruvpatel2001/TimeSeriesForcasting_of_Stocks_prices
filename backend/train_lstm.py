@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import pandas as pd
 import tensorflow as tf
@@ -36,9 +37,12 @@ def train_lstm(symbol):
     # Train model
     model.fit(X, y, epochs=20, batch_size=16, verbose=1)
     
-    # Save model
-    model.save("models/lstm_model.h5")
-    print("LSTM model saved successfully!")
+    # Ensure the models directory exists
+    model_dir = os.path.join(os.path.dirname(__file__), "models")
+    os.makedirs(model_dir, exist_ok=True)
+    model_path = os.path.join(model_dir, "lstm_model.h5")
+    model.save(model_path)
+    print(f"LSTM model saved successfully at {model_path}!")
 
 if __name__ == "__main__":
     train_lstm("AAPL")  # Train model for Apple stock
